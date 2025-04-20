@@ -1,0 +1,16 @@
+{
+    "C_Cpp.intelliSenseEngine": "default",
+    "idf.espIdfPathWin": "C:\\Users\\Vicente\\esp\\v5.4.1\\esp-idf",
+    "idf.pythonInstallPath": "C:\\Users\\Vicente\\.espressif\\tools\\idf-python\\3.11.2\\python.exe",
+    "idf.openOcdConfigs": [
+        "interface/ftdi/esp32_devkitj_v1.cfg",
+        "target/esp32.cfg"
+    ],
+    "idf.toolsPathWin": "C:\\Users\\Vicente\\.espressif",
+    "files.associations": {
+        "stdio.h": "c",
+        "freertos.h": "c",
+        "funcionesnt.h": "c",
+        "comunicaciones.h": "c"
+    }
+}
