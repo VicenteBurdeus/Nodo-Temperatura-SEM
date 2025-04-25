@@ -2,6 +2,14 @@
 #define FUNCIONESNT_H
 
 #include <stdint.h>
+#include "driver/gpio.h"
+#include "esp_sleep.h"
+#include "driver/adc.h"
+#include "esp_adc_cal.h"
+#include "freertos/FreeRTOS.h"
+#include "esp_adc/adc_oneshot.h" 
+#include "esp_mac.h"
+#include "dht.h"
 
 
 
@@ -33,7 +41,7 @@ uint8_t Get_battery_level();
 sensor_data_t Get_sensor_data(int8_t pin);
 
 //Esta funcion controla los led de estado
-void Show_status_led(uint8_t status);
+void Show_status_led(uint16_t status);
 
 //Esta funcion pone la CPU en Deep Sleep durante un tiempo determinado
 void Deep_sleep(uint32_t time_ms);

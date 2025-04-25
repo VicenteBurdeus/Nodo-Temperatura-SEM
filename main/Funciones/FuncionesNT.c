@@ -1,9 +1,6 @@
 #include "FuncionesNT.h"
-#include "driver/gpio.h"
-#include "esp_sleep.h"
-#include "driver/adc.h"
-#include "esp_adc_cal.h"
-#include "dht.h"  // Asegúrate de tener una lib DHT compatible con ESP-IDF
+
+ // Asegúrate de tener una lib DHT compatible con ESP-IDF
 
 void Init_pin_funcion(void){//Revisar 
     gpio_config_t io_conf = {
@@ -52,7 +49,7 @@ sensor_data_t Get_sensor_data(int8_t pin){
     return sensor_data;
 }
 
-void Show_status_led(uint8_t status){
+void Show_status_led(uint16_t status){
 //intentar programarlo para que no se quede bloaquedado en hacer ciclos con las leds
  // Funcionamiento correcto (status == 0)
  if (status == 0) {

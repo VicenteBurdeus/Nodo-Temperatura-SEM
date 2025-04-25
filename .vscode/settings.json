@@ -11,6 +11,10 @@
         "stdio.h": "c",
         "freertos.h": "c",
         "funcionesnt.h": "c",
-        "comunicaciones.h": "c"
+        "comunicaciones.h": "c",
+        "gpio.h": "c",
+        "adc.h": "c",
+        "dht.h": "c",
+        "adc_oneshot.h": "c"
     }
 }
