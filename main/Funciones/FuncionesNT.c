@@ -95,8 +95,8 @@ sensor_data_t Get_sensor_data(void){
 
 void Show_status_led(uint16_t status){
 //intentar programarlo para que no se quede bloaquedado en hacer ciclos con las leds
- // Funcionamiento correcto (status == 0)
- if (status == 0) {
+// Funcionamiento correcto (status == 0)
+if (status == 0) {
     gpio_set_level(Pin_Led_blanco, 1);
     vTaskDelay(pdMS_TO_TICKS(1000));
     gpio_set_level(Pin_Led_blanco, 0);
