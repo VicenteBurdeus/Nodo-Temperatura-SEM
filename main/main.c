@@ -14,9 +14,8 @@ void app_main(void)
     // Inicializar los pines
     Init_pin_funcion();
     //saca por el terminal serial el id del chip
-    uint8_t mac[6];
-    esp_read_mac(mac, ESP_MAC_WIFI_STA);
-    printf("MAC Address: %02X:%02X:%02X:%02X:%02X:%02X\n", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+    
+    printf("temperature: %f, Humedad: \n", Get_sensor_data().temperature);
     // Configuración de Wi-Fi
     Wifi_config_t wifi_config = {
         .ssid =  nombrewifi,

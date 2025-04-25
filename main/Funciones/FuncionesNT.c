@@ -14,44 +14,82 @@ void Init_pin_funcion(void){//Revisar
 
     gpio_config_t io_conf_input = {
         .mode = GPIO_MODE_INPUT,
-        .pin_bit_mask = (1ULL << Pin_senial_sensor) | (1ULL << Pin_bateria),
+        .pin_bit_mask = (1ULL << Pin_bateria) | (1ULL << Pin_senial_sensor),
         .pull_down_en = 0,
         .pull_up_en = 0,
         .intr_type = GPIO_INTR_DISABLE
     };
+
     gpio_config(&io_conf_input);
 
+    vTaskDelay(pdMS_TO_TICKS(500));
+    gpio_set_level(Pin_enable_divisorR, 1);
+    vTaskDelay(pdMS_TO_TICKS(500));
 }
 
-uint8_t Get_battery_level(){
-    gpio_set_level(Pin_enable_divisorR, 1); // activar divisor
-    vTaskDelay(pdMS_TO_TICKS(50)); // esperar estabilización
+#include "esp_adc/adc_oneshot.h"
+#include "esp_adc/adc_cali.h"
+#include "esp_adc/adc_cali_scheme.h"
 
-    // Leer ADC
-    adc1_config_width(ADC_WIDTH_BIT_12);
-    adc1_config_channel_atten(ADC1_CHANNEL_6, ADC_ATTEN_DB_11); // GPIO34 = ADC1_CH6
-    int raw = adc1_get_raw(ADC1_CHANNEL_6);
+uint8_t Get_battery_level() {
+    static adc_oneshot_unit_handle_t adc_handle = NULL;
+    static adc_cali_handle_t cali_handle = NULL;
+    static bool initialized = false;
 
-    gpio_set_level(Pin_enable_divisorR, 0); // desactivar divisor
+    if (!initialized) {
+        // Configurar ADC oneshot
+        adc_oneshot_unit_init_cfg_t init_config = {
+            .unit_id = ADC_UNIT_1,
+            .ulp_mode = ADC_ULP_MODE_DISABLE
+        };
+        adc_oneshot_new_unit(&init_config, &adc_handle);
 
-    // Convertir lectura a porcentaje (suponiendo linealidad entre 2.0V y 3.3V)
-    float voltage = ((float)raw / 4095.0) * 3.3;
-    float percent = (voltage - 2.0) / (3.3 - 2.0) * 100.0;
+        adc_oneshot_chan_cfg_t config = {
+            .atten = ADC_ATTEN_DB_12,
+            .bitwidth = ADC_BITWIDTH_DEFAULT
+        };
+        adc_oneshot_config_channel(adc_handle, ADC_CHANNEL_6, &config);
+
+        // Inicializar calibración
+        adc_cali_line_fitting_config_t cali_config = {
+            .unit_id = ADC_UNIT_1,
+            .atten = ADC_ATTEN_DB_12,
+            .bitwidth = ADC_BITWIDTH_DEFAULT
+        };
+        adc_cali_create_scheme_line_fitting(&cali_config, &cali_handle);
+
+        initialized = true;
+    }
+
+    gpio_set_level(Pin_enable_divisorR, 1); // Activar divisor resistivo
+    vTaskDelay(pdMS_TO_TICKS(50)); // Estabilización
+
+    int raw = 0, voltage_mv = 0;
+    adc_oneshot_read(adc_handle, ADC_CHANNEL_6, &raw);
+    adc_cali_raw_to_voltage(cali_handle, raw, &voltage_mv);
+
+    gpio_set_level(Pin_enable_divisorR, 0); // Desactivar divisor
+
+    // Asumir rango útil entre 2000 mV y 3300 mV
+    float percent = (voltage_mv - 2000.0) / (3300.0 - 2000.0) * 100.0;
     if (percent < 0) percent = 0;
     if (percent > 100) percent = 100;
 
     return (uint8_t)percent;
 }
 
-sensor_data_t Get_sensor_data(int8_t pin){
+sensor_data_t Get_sensor_data(void){
     sensor_data_t sensor_data = {0.0, 0};
 
     int16_t temperature = 0, humidity = 0;
-    if (dht_read_data(DHT_TYPE_DHT11, pin, &humidity, &temperature) == ESP_OK) {
+    if (dht_read_data(DHT_TYPE_DHT11, Pin_senial_sensor, &humidity, &temperature) == ESP_OK) {
         sensor_data.temperature = (float)temperature;
         sensor_data.humidity = humidity;
     }
-
+    else {
+        sensor_data.temperature = -1.0; // Error en lectura
+        sensor_data.humidity = -1; // Error en lectura
+    }
     return sensor_data;
 }
 

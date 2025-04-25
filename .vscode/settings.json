@@ -15,7 +15,10 @@
         "gpio.h": "c",
         "adc.h": "c",
         "dht.h": "c",
-        "adc_oneshot.h": "c"
+        "adc_oneshot.h": "c",
+        "esp_mac.h": "c",
+        "adc_continuous.h": "c",
+        "adc_cali_scheme.h": "c"
     },
     "idf.flashType": "UART",
     "idf.portWin": "COM4"

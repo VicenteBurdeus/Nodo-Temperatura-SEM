@@ -2,13 +2,17 @@
 #define FUNCIONESNT_H
 
 #include <stdint.h>
+#include <stdio.h>
+
 #include "driver/gpio.h"
+#include "esp_adc/adc_oneshot.h"
+#include "esp_adc/adc_cali.h"
+#include "esp_adc/adc_cali_scheme.h"
 #include "esp_sleep.h"
-#include "driver/adc.h"
-#include "esp_adc_cal.h"
-#include "freertos/FreeRTOS.h"
-#include "esp_adc/adc_oneshot.h" 
 #include "esp_mac.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+
 #include "dht.h"
 
 
@@ -38,7 +42,7 @@ void Init_pin_funcion(void);
 uint8_t Get_battery_level();
 
 //Lee el senial del sensor y devuelve la temperatura y humedad
-sensor_data_t Get_sensor_data(int8_t pin);
+sensor_data_t Get_sensor_data(void);
 
 //Esta funcion controla los led de estado
 void Show_status_led(uint16_t status);
