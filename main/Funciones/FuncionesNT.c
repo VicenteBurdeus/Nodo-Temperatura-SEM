@@ -70,12 +70,12 @@ uint8_t Get_battery_level() {
 
     gpio_set_level(Pin_enable_divisorR, 0); // Desactivar divisor
 
-    // Asumir rango útil entre 2000 mV y 3300 mV
-    float percent = (voltage_mv - 2000.0) / (3300.0 - 2000.0) * 100.0;
-    if (percent < 0) percent = 0;
-    if (percent > 100) percent = 100;
+    // Calcular el porcentaje de batería en pasos de 10 
+    // 0% = 1.80 y 100% = 2.6v
+    voltage_mv = voltage_mv - 1800; // Restar 1.8V
+    voltage_mv = voltage_mv * 20 / 800; // Calcular porcentaje (0-100%)
+    return (uint8_t) voltage_mv * 5;
 
-    return (uint8_t)percent;
 }
 
 sensor_data_t Get_sensor_data(void){
