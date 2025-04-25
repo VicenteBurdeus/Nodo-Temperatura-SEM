@@ -12,9 +12,15 @@ void Init_pin_funcion(void){//Revisar
     };
     gpio_config(&io_conf);
 
-    // Configurar pin del sensor como entrada si es necesario
-    gpio_set_direction(Pin_senial_sensor, GPIO_MODE_INPUT);
-    gpio_set_direction(Pin_bateria, GPIO_MODE_INPUT); // para ADC también
+    gpio_config_t io_conf_input = {
+        .mode = GPIO_MODE_INPUT,
+        .pin_bit_mask = (1ULL << Pin_senial_sensor) | (1ULL << Pin_bateria),
+        .pull_down_en = 0,
+        .pull_up_en = 0,
+        .intr_type = GPIO_INTR_DISABLE
+    };
+    gpio_config(&io_conf_input);
+
 }
 
 uint8_t Get_battery_level(){

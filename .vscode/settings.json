@@ -16,5 +16,7 @@
         "adc.h": "c",
         "dht.h": "c",
         "adc_oneshot.h": "c"
-    }
+    },
+    "idf.flashType": "UART",
+    "idf.portWin": "COM4"
 }
