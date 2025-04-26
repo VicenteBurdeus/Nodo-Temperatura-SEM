@@ -13,7 +13,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
-#include "dht.h"
+#include "dht11.h"
 
 
 
@@ -27,7 +27,7 @@
 #ifndef SENSOR_TYPE
 #define SENSOR_TYPE
 typedef struct {
-    float temperature; // Temperatura medida por el sensor
+    int temperature; // Temperatura medida por el sensor
     int humidity;  // Humedad medida por el sensor
 } sensor_data_t;
 #endif // SENSOR_TYPE

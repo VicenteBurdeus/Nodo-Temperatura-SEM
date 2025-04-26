@@ -14,8 +14,8 @@ void app_main(void)
     // Inicializar los pines
     Init_pin_funcion();
     //saca por el terminal serial el id del chip
-    
-    printf("temperature: %f, Humedad: \n", Get_sensor_data().temperature);
+    sensor_data_t sensor_data = Get_sensor_data();
+    printf("temperature: %d, Humedad:%d \n", sensor_data.temperature, sensor_data.humidity);
     // Configuración de Wi-Fi
     Wifi_config_t wifi_config = {
         .ssid =  nombrewifi,

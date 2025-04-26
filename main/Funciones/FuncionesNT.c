@@ -22,9 +22,8 @@ void Init_pin_funcion(void){//Revisar
 
     gpio_config(&io_conf_input);
 
-    vTaskDelay(pdMS_TO_TICKS(500));
-    gpio_set_level(Pin_enable_divisorR, 1);
-    vTaskDelay(pdMS_TO_TICKS(500));
+    DHT11_init(Pin_senial_sensor); // Inicializar el sensor DHT11
+
 }
 
 #include "esp_adc/adc_oneshot.h"
@@ -81,16 +80,16 @@ uint8_t Get_battery_level() {
 sensor_data_t Get_sensor_data(void){
     sensor_data_t sensor_data = {0.0, 0};
 
-    int16_t temperature = 0, humidity = 0;
-    if (dht_read_data(DHT_TYPE_DHT11, Pin_senial_sensor, &humidity, &temperature) == ESP_OK) {
-        sensor_data.temperature = (float)temperature;
-        sensor_data.humidity = humidity;
-    }
-    else {
-        sensor_data.temperature = -1.0; // Error en lectura
-        sensor_data.humidity = -1; // Error en lectura
+    struct dht11_reading reading = DHT11_read();
+    if (reading.status == DHT11_OK) {
+        sensor_data.temperature = reading.temperature;
+        sensor_data.humidity = reading.humidity;
+    }else {
+        sensor_data.temperature = -1.0; // Error en la lectura de temperatura
+        sensor_data.humidity = -1; // Error en la lectura de humedad
     }
     return sensor_data;
+
 }
 
 void Show_status_led(uint16_t status){
