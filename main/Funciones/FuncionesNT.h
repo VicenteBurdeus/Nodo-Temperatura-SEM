@@ -2,18 +2,6 @@
 #define FUNCIONESNT_H
 
 #include <stdint.h>
-#include <stdio.h>
-
-#include "driver/gpio.h"
-#include "esp_adc/adc_oneshot.h"
-#include "esp_adc/adc_cali.h"
-#include "esp_adc/adc_cali_scheme.h"
-#include "esp_sleep.h"
-#include "esp_mac.h"
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-
-#include "dht11.h"
 
 
 
@@ -27,7 +15,7 @@
 #ifndef SENSOR_TYPE
 #define SENSOR_TYPE
 typedef struct {
-    int temperature; // Temperatura medida por el sensor
+    float temperature; // Temperatura medida por el sensor
     int humidity;  // Humedad medida por el sensor
 } sensor_data_t;
 #endif // SENSOR_TYPE
@@ -42,10 +30,17 @@ void Init_pin_funcion(void);
 uint8_t Get_battery_level();
 
 //Lee el senial del sensor y devuelve la temperatura y humedad
-sensor_data_t Get_sensor_data(void);
+sensor_data_t Get_sensor_data(int8_t pin);
+
+
+//version tarea en otro core
+void Sensor_Task(void *pvParameters);
 
 //Esta funcion controla los led de estado
-void Show_status_led(uint16_t status);
+void Show_status_led(uint8_t status);
+x
+
+
 
 //Esta funcion pone la CPU en Deep Sleep durante un tiempo determinado
 void Deep_sleep(uint32_t time_ms);
