@@ -11,6 +11,20 @@
 
 void app_main(void)
 {
+
+
+    //crear la tarea del sensor
+    xTaskCreatePinnedToCore(
+        Sensor_Task,      // Función de la tarea
+        "SensorTask",     // Nombre de la tarea
+        2048,             // Tamaño del stack
+        NULL,             // Parámetro
+        5,                // Prioridad
+        NULL,             // Handle (no la necesitamos ahora)
+        1                 // Núcleo (0 o 1) — aquí corre en el core 1
+    );
+
+
     // Inicializar los pines
     Init_pin_funcion();
     //saca por el terminal serial el id del chip
