@@ -1,4 +1,10 @@
 #include "FuncionesNT.h"
+#include "esp_adc/adc_oneshot.h"
+#include "esp_adc/adc_cali.h"
+#include "esp_adc/adc_cali_scheme.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+
 
  // Asegúrate de tener una lib DHT compatible con ESP-IDF
 
@@ -26,9 +32,6 @@ void Init_pin_funcion(void){//Revisar
 
 }
 
-#include "esp_adc/adc_oneshot.h"
-#include "esp_adc/adc_cali.h"
-#include "esp_adc/adc_cali_scheme.h"
 
 uint8_t Get_battery_level() {
     static adc_oneshot_unit_handle_t adc_handle = NULL;
@@ -91,6 +94,29 @@ sensor_data_t Get_sensor_data(void){
     return sensor_data;
 
 }
+
+//-----------------task version
+
+sensor_data_t global_sensor_data; //es global para que pueda acceder desde el main.c
+
+
+void Sensor_Task(void *pvParameters) {
+    while (1) {
+        struct dht11_reading reading = DHT11_read();
+        if (reading.status == DHT11_OK) {
+            global_sensor_data.temperature = reading.temperature;
+            global_sensor_data.humidity = reading.humidity;
+        } else {
+            global_sensor_data.temperature = -1.0; // Error
+            global_sensor_data.humidity = -1;      // Error
+        }
+        
+        // Puedes hacer la lectura cada cierto tiempo (ej: cada 5 segundos)
+        vTaskDelay(pdMS_TO_TICKS(5000));
+    }
+}
+
+
 
 void Show_status_led(uint16_t status){
 //intentar programarlo para que no se quede bloaquedado en hacer ciclos con las leds
