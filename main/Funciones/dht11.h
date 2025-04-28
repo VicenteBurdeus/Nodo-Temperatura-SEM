@@ -22,10 +22,19 @@
  * SOFTWARE.
 */
 
+
+
 #ifndef DHT11_H_
 #define DHT11_H_
 
 #include "driver/gpio.h"
+
+typedef struct {
+    int8_t temperature;
+    int8_t humidity; 
+} sensor_data_t;
+
+
 
 enum dht11_status {
     DHT11_CRC_ERROR = -2,
@@ -38,6 +47,9 @@ struct dht11_reading {
     int temperature;
     int humidity;
 };
+
+
+
 
 void DHT11_init(gpio_num_t);
 

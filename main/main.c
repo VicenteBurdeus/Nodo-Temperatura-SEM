@@ -4,14 +4,13 @@
 #include <freertos/FreeRTOS.h>
 #include "./Funciones/FuncionesNT.h"
 #include "./Comunicacion/Comunicaciones.h"
-#include "Comunicaciones.h"
 
 #include "cosas.h"
 
 
 void app_main(void)
 {
-
+    Init_pin_funcion();
 
     //crear la tarea del sensor
     xTaskCreatePinnedToCore(
@@ -24,12 +23,7 @@ void app_main(void)
         1                 // Núcleo (0 o 1) — aquí corre en el core 1
     );
 
-
-    // Inicializar los pines
-    Init_pin_funcion();
-    //saca por el terminal serial el id del chip
-    sensor_data_t sensor_data = Get_sensor_data();
-    printf("temperature: %d, Humedad:%d \n", sensor_data.temperature, sensor_data.humidity);
+    
     // Configuración de Wi-Fi
     Wifi_config_t wifi_config = {
         .ssid =  nombrewifi,

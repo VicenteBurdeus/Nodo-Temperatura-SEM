@@ -18,7 +18,12 @@
         "adc_oneshot.h": "c",
         "esp_mac.h": "c",
         "adc_continuous.h": "c",
-        "adc_cali_scheme.h": "c"
+        "adc_cali_scheme.h": "c",
+        "adc_cali.h": "c",
+        "esp_sleep.h": "c",
+        "stdint.h": "c",
+        "dht11.h": "c",
+        "task.h": "c"
     },
     "idf.flashType": "UART",
     "idf.portWin": "COM4"

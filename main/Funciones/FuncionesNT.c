@@ -1,12 +1,6 @@
 #include "FuncionesNT.h"
-#include "esp_adc/adc_oneshot.h"
-#include "esp_adc/adc_cali.h"
-#include "esp_adc/adc_cali_scheme.h"
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
+#include <esp_mac.h>
 
-
- // Asegúrate de tener una lib DHT compatible con ESP-IDF
 
 void Init_pin_funcion(void){//Revisar 
     gpio_config_t io_conf = {
@@ -88,7 +82,7 @@ sensor_data_t Get_sensor_data(void){
         sensor_data.temperature = reading.temperature;
         sensor_data.humidity = reading.humidity;
     }else {
-        sensor_data.temperature = -1.0; // Error en la lectura de temperatura
+        sensor_data.temperature = -1; // Error en la lectura de temperatura
         sensor_data.humidity = -1; // Error en la lectura de humedad
     }
     return sensor_data;
@@ -97,50 +91,48 @@ sensor_data_t Get_sensor_data(void){
 
 //-----------------task version
 
-sensor_data_t global_sensor_data; //es global para que pueda acceder desde el main.c
+
 
 
 void Sensor_Task(void *pvParameters) {
-    while (1) {
+    
+    for(;;){
         struct dht11_reading reading = DHT11_read();
-        if (reading.status == DHT11_OK) {
-            global_sensor_data.temperature = reading.temperature;
-            global_sensor_data.humidity = reading.humidity;
-        } else {
-            global_sensor_data.temperature = -1.0; // Error
-            global_sensor_data.humidity = -1;      // Error
+        if (reading.status != DHT11_OK) {
+            reading.humidity = -1;
+            reading.temperature = -1;     // Error
         }
         
         // Puedes hacer la lectura cada cierto tiempo (ej: cada 5 segundos)
-        vTaskDelay(pdMS_TO_TICKS(5000));
-    }
+        printf("temperature: %d, Humedad:%d \n", reading.temperature, reading.humidity);
+        vTaskDelay(pdMS_TO_TICKS(1000));
+    }   
 }
 
 
 
 void Show_status_led(uint16_t status){
-//intentar programarlo para que no se quede bloaquedado en hacer ciclos con las leds
-// Funcionamiento correcto (status == 0)
-if (status == 0) {
-    gpio_set_level(Pin_Led_blanco, 1);
-    vTaskDelay(pdMS_TO_TICKS(1000));
-    gpio_set_level(Pin_Led_blanco, 0);
-    return;
-}
+    //intentar programarlo para que no se quede bloaquedado en hacer ciclos con las leds
+    // Funcionamiento correcto (status == 0)
+    if (status == 0) {
+        gpio_set_level(Pin_Led_blanco, 1);
+        vTaskDelay(pdMS_TO_TICKS(1000));
+        gpio_set_level(Pin_Led_blanco, 0);
+        return;
+    }
 
-// Identificar tipo de error por los miles
-uint8_t parpadeos = 0;
-if (status >= 1000 && status < 2000) parpadeos = 1;
-else if (status >= 2000 && status < 3000) parpadeos = 2;
-else if (status >= 3000 && status < 4000) parpadeos = 3;
+    // Identificar tipo de error por los miles
+    uint8_t parpadeos = 0;
+    if (status >= 1000 && status < 2000) parpadeos = 1;
+    else if (status >= 2000 && status < 3000) parpadeos = 2;
+    else if (status >= 3000 && status < 4000) parpadeos = 3;
 
-for (uint8_t i = 0; i < parpadeos; i++) {
-    gpio_set_level(Pin_Led_rojo, 1);
-    vTaskDelay(pdMS_TO_TICKS(300)); // Encendido 300 ms
-    gpio_set_level(Pin_Led_rojo, 0);
-    vTaskDelay(pdMS_TO_TICKS(300)); // Apagado 300 ms
-}
-
+    for (uint8_t i = 0; i < parpadeos; i++) {
+        gpio_set_level(Pin_Led_rojo, 1);
+        vTaskDelay(pdMS_TO_TICKS(300)); // Encendido 300 ms
+        gpio_set_level(Pin_Led_rojo, 0);
+        vTaskDelay(pdMS_TO_TICKS(300)); // Apagado 300 ms
+    }
 }
 
 void Deep_sleep(uint32_t time_ms){

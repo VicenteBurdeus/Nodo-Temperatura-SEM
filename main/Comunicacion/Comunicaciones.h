@@ -3,15 +3,8 @@
 
 #include <stdint.h>
 #include <cJSON.h>
+#include "dht11.h"
 
-
-#ifndef SENSOR_TYPE
-#define SENSOR_TYPE
-typedef struct {
-    float temperature;
-    int humidity; 
-} sensor_data_t;
-#endif // SENSOR_TYPE
 
 typedef struct
 {
@@ -48,4 +41,4 @@ char* mqtt_create_json(sensor_data_t data);
 
 
 
-#endif // COMUNICACIONES_H
+#endif
