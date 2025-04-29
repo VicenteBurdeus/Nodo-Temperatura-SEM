@@ -1,3 +1,4 @@
+
 #ifndef COMUNICACIONES_H
 #define COMUNICACIONES_H
 
@@ -5,12 +6,17 @@
 #include <cJSON.h>
 
 
-#include "dht11.h"
-
+#ifndef SENSOR_TYPE
+#define SENSOR_TYPE
+typedef struct {
+    float temperature;
+    int humidity; 
+} sensor_data_t;
+#endif // SENSOR_TYPE
 
 typedef struct
 {
-    char *broker; // Broker MQTTdocke
+    char *broker; // Broker MQTT
     char *client_id; // ID del cliente MQTT
     char *username; // Nombre de usuario para el broker MQTT
     char *password; // Contraseña para el broker MQTT
@@ -43,4 +49,4 @@ char* mqtt_create_json(sensor_data_t data);
 
 
 
-#endif
+#endif // COMUNICACIONES_H
