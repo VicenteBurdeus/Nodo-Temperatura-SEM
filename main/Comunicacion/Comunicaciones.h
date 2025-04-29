@@ -3,12 +3,14 @@
 
 #include <stdint.h>
 #include <cJSON.h>
+
+
 #include "dht11.h"
 
 
 typedef struct
 {
-    char *broker; // Broker MQTT
+    char *broker; // Broker MQTTdocke
     char *client_id; // ID del cliente MQTT
     char *username; // Nombre de usuario para el broker MQTT
     char *password; // Contraseña para el broker MQTT

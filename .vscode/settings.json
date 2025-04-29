@@ -23,7 +23,9 @@
         "esp_sleep.h": "c",
         "stdint.h": "c",
         "dht11.h": "c",
-        "task.h": "c"
+        "task.h": "c",
+        "socket.h": "c",
+        "sockets.h": "c"
     },
     "idf.flashType": "UART",
     "idf.portWin": "COM4"
