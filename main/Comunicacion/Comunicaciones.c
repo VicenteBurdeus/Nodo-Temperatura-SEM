@@ -1,12 +1,5 @@
 #include "Comunicaciones.h"
-#include "esp_log.h"
-#include "esp_wifi.h"
-#include "esp_event.h"
-#include "nvs_flash.h"
-#include "mqtt_client.h"
-#include "freertos/FreeRTOS.h"
-#include "freertos/event_groups.h"
-#include "string.h"
+
 
 #define WIFI_CONNECTED_BIT BIT0
 static EventGroupHandle_t wifi_event_group;
@@ -92,10 +85,10 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base,
 void mqtt_connect(mqtt_config_t *mqtt_config)
 {
     esp_mqtt_client_config_t config = {
-        .uri = mqtt_config->broker,
-        .client_id = mqtt_config->client_id,
-        .username = mqtt_config->username,
-        .password = mqtt_config->password,
+        .broker.address.uri = mqtt_config->broker,
+        .credentials.client_id = mqtt_config->client_id,
+        .credentials.username = mqtt_config->username,
+        .credentials.authentication.password = mqtt_config->password,
     };
 
     client = esp_mqtt_client_init(&config);

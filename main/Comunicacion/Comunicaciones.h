@@ -4,15 +4,17 @@
 
 #include <stdint.h>
 #include <cJSON.h>
+#include "esp_wifi.h"
+#include <mqtt_client.h>
+#include <esp_log.h>
+#include <esp_event.h>
+#include <nvs_flash.h>
+#include <freertos/FreeRTOS.h>
+#include <string.h>
+
+#include "dht11.h"
 
 
-#ifndef SENSOR_TYPE
-#define SENSOR_TYPE
-typedef struct {
-    float temperature;
-    int humidity; 
-} sensor_data_t;
-#endif // SENSOR_TYPE
 
 typedef struct
 {
