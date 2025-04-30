@@ -14,8 +14,8 @@
 #include "esp_sleep.h"
 
 
-#define Pin_Led_rojo 26         // Pin salida para led Rojo
-#define Pin_Led_blanco 27       // Pin salida pare led Blanco
+#define Pin_Led_rojo 27         // Pin salida para led Rojo
+#define Pin_Led_blanco 26       // Pin salida pare led Blanco
 #define Pin_senial_sensor 5     // Pin entrada para senial del sensor
 #define Pin_bateria 34          // Pin entrada para senial de la bateria
 #define Pin_enable_divisorR 25  // Pin salida para activar el divisor de tension de la bateria

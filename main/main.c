@@ -49,6 +49,10 @@ void app_main(void)
     //mqtt_publish(&mqtt_config, mqtt_config.topic, mqtt_create_json(Get_sensor_data(Pin_senial_sensor)), 1);
     // Desconectar MQTT y Wi-Fi
     //mqtt_disconnect();
+    Show_status_led(0); // LED rojo encendido
+    vTaskDelay(pdMS_TO_TICKS(1000));
+    Show_status_led(3001); // LED blanco encendido
+    vTaskDelay(pdMS_TO_TICKS(1000));
     Disable_wifi();
 
     // Entrar en modo de sueño profundo
