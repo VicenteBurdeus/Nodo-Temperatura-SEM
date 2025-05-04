@@ -20,7 +20,7 @@ static void wifi_event_handler(void* arg, esp_event_base_t event_base,
 }
 
 // Inicializa y conecta a Wi-Fi
-void Enable_wifi(Wifi_config_t *wifi_config)
+error_code_t Enable_wifi(Wifi_config_t *wifi_config)
 {
     wifi_event_group = xEventGroupCreate();
     ESP_ERROR_CHECK(nvs_flash_init());
@@ -56,6 +56,7 @@ void Enable_wifi(Wifi_config_t *wifi_config)
     ESP_LOGI(TAG, "Conectando a Wi-Fi...");
     xEventGroupWaitBits(wifi_event_group, WIFI_CONNECTED_BIT, pdFALSE, pdTRUE, portMAX_DELAY);
     ESP_LOGI(TAG, "Conectado a Wi-Fi.");
+    return NoError;
 }
 
 void Disable_wifi(void)
@@ -82,7 +83,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base,
     }
 }
 
-void mqtt_connect(mqtt_config_t *mqtt_config)
+error_code_t mqtt_connect(mqtt_config_t *mqtt_config)
 {
     esp_mqtt_client_config_t config = {
         .broker.address.uri = mqtt_config->broker,
@@ -94,6 +95,7 @@ void mqtt_connect(mqtt_config_t *mqtt_config)
     client = esp_mqtt_client_init(&config);
     esp_mqtt_client_register_event(client, ESP_EVENT_ANY_ID, mqtt_event_handler, NULL);
     esp_mqtt_client_start(client);
+    return NoError;
 }
 
 void mqtt_disconnect(void)
@@ -105,22 +107,27 @@ void mqtt_disconnect(void)
     }
 }
 
-void mqtt_publish(mqtt_config_t *mqtt_config, const char *topic, const char *message, int qos)
+error_code_t mqtt_publish(mqtt_config_t *mqtt_config, const char *topic, const char *message, int qos)
 {
     if (client) {
         esp_mqtt_client_publish(client, topic, message, 0, qos, 0);
     }
+    return NoError;
 }
 
 // Crear JSON
-char* mqtt_create_json(sensor_data_t data)
+error_code_t mqtt_create_json(int8_t temperature, uint8_t humidity, uint8_t battery_level, char **json_string)
 {
     cJSON *root = cJSON_CreateObject();
-    cJSON_AddStringToObject(root, "id_dispositivo", "NT_3");
-    cJSON_AddNumberToObject(root, "Temperatura", data.temperature);
-    cJSON_AddNumberToObject(root, "Humedad", data.humidity);
+    if (root == NULL) {
+        return SensorError; // Error: no se pudo crear el objeto JSON
+    }
+    cJSON_AddNumberToObject(root, "temperatura", temperature);
+    cJSON_AddNumberToObject(root, "humedad", humidity);
+    cJSON_AddNumberToObject(root, "battery", battery_level);
+    cJSON_AddStringToObject(root, "ID", "NT_1");
 
-    char *json_string = cJSON_PrintUnformatted(root);
+    *json_string = cJSON_PrintUnformatted(root);
     cJSON_Delete(root);
-    return json_string; // ¡Recuerda liberar esto después con free()!
+    return NoError;
 }

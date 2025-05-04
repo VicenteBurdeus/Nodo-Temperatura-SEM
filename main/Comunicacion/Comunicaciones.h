@@ -14,7 +14,7 @@
 
 #include "dht11.h"
 
-
+#include "error.h"
 
 typedef struct
 {
@@ -35,17 +35,17 @@ typedef struct
 
 
 
-void Enable_wifi(Wifi_config_t *wifi_config);
+error_code_t Enable_wifi(Wifi_config_t *wifi_config);
 
 void Disable_wifi(void);
 
-void mqtt_connect(mqtt_config_t *mqtt_config);
+error_code_t mqtt_connect(mqtt_config_t *mqtt_config);
 
 void mqtt_disconnect(void);
 
-void mqtt_publish(mqtt_config_t *mqtt_config, const char *topic, const char *message, int qos);
+error_code_t mqtt_publish(mqtt_config_t *mqtt_config, const char *topic, const char *message, int qos);
 
-char* mqtt_create_json(sensor_data_t data);
+error_code_t mqtt_create_json(int8_t temperature, uint8_t humidity, uint8_t battery_level, char **json_string);
 
 
 

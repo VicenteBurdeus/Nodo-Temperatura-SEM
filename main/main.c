@@ -9,52 +9,37 @@
 
 
 void app_main(void)
-{
-    Init_pin_funcion();
+{   
 
-    //crear la tarea del sensor
-    xTaskCreatePinnedToCore(
-        Sensor_Task,      // Función de la tarea
-        "SensorTask",     // Nombre de la tarea
-        2048,             // Tamaño del stack
-        NULL,             // Parámetro
-        5,                // Prioridad
-        NULL,             // Handle (no la necesitamos ahora)
-        1                 // Núcleo (0 o 1) — aquí corre en el core 1
-    );
-
-    
     // Configuración de Wi-Fi
     Wifi_config_t wifi_config = {
-        .ssid =  nombrewifi,
-        .password = contrasena
+        .ssid = "SSID",
+        .password = "PASSWORD"
     };
-    Enable_wifi(&wifi_config);
-
     // Configuración de MQTT
     mqtt_config_t mqtt_config = {
-        .broker = "mqtt_broker",
-        .client_id = "client_id",
-        .username = "username",
+        .broker = "100.93.177.37:1883",
+        .client_id = "NT_1",
+        .username = "user",
         .password = "password",
-        .topic = "PR2/PA9/Keso/sensor",
-        .topic2 = "PR2/PA9/Keso/batteria",
+        .topic = "NT"
     };
-    //mqtt_connect(&mqtt_config);
 
-    // Publicar un mensaje
-    //mqtt_publish(&mqtt_config, mqtt_config.topic, mqtt_create_json(Get_sensor_data(Pin_senial_sensor)), 1);
+    uint8_t bateria = 0;
+    int8_t temperatura = 0;
+    uint8_t humedad = 0;
+    error_code_t status = NoError;
+    char *json_string = NULL;
 
-    //int battery_level = Get_battery_level();
-    //mqtt_publish(&mqtt_config, mqtt_config.topic, mqtt_create_json(Get_sensor_data(Pin_senial_sensor)), 1);
-    // Desconectar MQTT y Wi-Fi
-    //mqtt_disconnect();
-    Show_status_led(0); // LED rojo encendido
-    vTaskDelay(pdMS_TO_TICKS(1000));
-    Show_status_led(3001); // LED blanco encendido
-    vTaskDelay(pdMS_TO_TICKS(1000));
-    Disable_wifi();
-
-    // Entrar en modo de sueño profundo
-    Deep_sleep(5000);
+    if(!status){status = Init_pin_funcion();}
+    if(!status){status = Enable_wifi(&wifi_config);}
+    if(!status){status = mqtt_connect(&mqtt_config);}
+    if(!status){status = get_data(&temperatura, &humedad, &bateria);}
+    if(!status){status = mqtt_create_json(temperatura, humedad, bateria, &json_string);}
+    if(!status){status = mqtt_publish(&mqtt_config, mqtt_config.topic, json_string, 0);}
+    if(!status){
+        Disable_wifi();
+        mqtt_disconnect();}
+    status = Show_status_led(status);
+    if(!status){status = Deep_sleep(5000);}
 }

@@ -12,7 +12,7 @@
 //#include "C:\Users\Vicente\esp\v5.4.1\esp-idf\components\esp_driver_gpio\include\driver\gpio.h"
 #include "dht11.h"
 #include "esp_sleep.h"
-
+#include "error.h"
 
 #define Pin_Led_rojo 27         // Pin salida para led Rojo
 #define Pin_Led_blanco 26       // Pin salida pare led Blanco
@@ -21,30 +21,20 @@
 #define Pin_enable_divisorR 25  // Pin salida para activar el divisor de tension de la bateria
 
 
+//Inicializa los pines de la placa
+error_code_t Init_pin_funcion(void);
 
-void Init_pin_funcion(void);
-
- //es global para que pueda acceder desde el main.c
+error_code_t get_data(int8_t *temperature, uint8_t *humidity, uint8_t *battery_level);
 
 //Esta funcion devuelve un valor entre 0 y 100 
 //que representa el nivel de carga de la bateria
 //Por debajo de 20 se considera bateria baja
-uint8_t Get_battery_level();
-
+error_code_t Get_battery_level(uint8_t *battery_level);
 //Lee el senial del sensor y devuelve la temperatura y humedad
-sensor_data_t Get_sensor_data(void);
+error_code_t Get_sensor_data(int8_t *temperature, uint8_t *humidity);
 
+error_code_t Show_status_led(error_code_t status);
 
-//version tarea en otro core
-void Sensor_Task(void *pvParameters);
-
-//Esta funcion controla los led de estado
-void Show_status_led(uint16_t status);
-
-
-
-
-//Esta funcion pone la CPU en Deep Sleep durante un tiempo determinado
-void Deep_sleep(uint32_t time_ms);
+error_code_t Deep_sleep(uint32_t time_ms);
 
 #endif
