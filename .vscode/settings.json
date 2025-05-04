@@ -26,7 +26,8 @@
         "task.h": "c",
         "socket.h": "c",
         "sockets.h": "c",
-        "stdlib.h": "c"
+        "stdlib.h": "c",
+        "esp_wifi.h": "c"
     },
     "idf.flashType": "UART",
     "idf.portWin": "COM4"

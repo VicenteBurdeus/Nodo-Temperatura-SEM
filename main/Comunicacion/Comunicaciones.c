@@ -1,61 +1,74 @@
 #include "Comunicaciones.h"
-
+#include "esp_wifi.h"
+#include "esp_event.h"
+#include "nvs_flash.h"
+#include "esp_log.h"
+#include "freertos/event_groups.h"
 
 #define WIFI_CONNECTED_BIT BIT0
+#define WIFI_MAX_WAIT_TIME_MS 1000 // Tiempo máximo de espera para la conexión Wi-Fi
 static EventGroupHandle_t wifi_event_group;
 static const char *TAG = "COM";
 
 static esp_mqtt_client_handle_t client = NULL;
 
-// Eventos Wi-Fi
+#define WIFI_CONNECTED_BIT BIT0
+static EventGroupHandle_t wifi_event_group;
+static const char *TAG_WIFI = "WIFI";
+
+// Manejador de eventos Wi-Fi
 static void wifi_event_handler(void* arg, esp_event_base_t event_base,
                                int32_t event_id, void* event_data)
 {
-    if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START)
+    if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START) {
         esp_wifi_connect();
-    else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED)
-        esp_wifi_connect(); // reconecta automáticamente
-    else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP)
+    } else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED) {
+        ESP_LOGW(TAG_WIFI, "Wi-Fi desconectado, intentando reconectar...");
+        esp_wifi_connect();
+    } else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
         xEventGroupSetBits(wifi_event_group, WIFI_CONNECTED_BIT);
+    }
 }
 
-// Inicializa y conecta a Wi-Fi
 error_code_t Enable_wifi(Wifi_config_t *wifi_config)
 {
     wifi_event_group = xEventGroupCreate();
-    ESP_ERROR_CHECK(nvs_flash_init());
-    ESP_ERROR_CHECK(esp_netif_init());
-    ESP_ERROR_CHECK(esp_event_loop_create_default());
+    if (!wifi_event_group) return WiFiError;
+
+    if (nvs_flash_init() != ESP_OK) return WiFiError;
+    if (esp_netif_init() != ESP_OK) return WiFiError;
+    if (esp_event_loop_create_default() != ESP_OK) return WiFiError;
 
     esp_netif_create_default_wifi_sta();
 
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
-    ESP_ERROR_CHECK(esp_wifi_init(&cfg));
+    if (esp_wifi_init(&cfg) != ESP_OK) return WiFiError;
 
-    esp_event_handler_instance_t instance_any_id;
-    esp_event_handler_instance_t instance_got_ip;
-    ESP_ERROR_CHECK(esp_event_handler_instance_register(WIFI_EVENT,
-                                                        ESP_EVENT_ANY_ID,
-                                                        &wifi_event_handler,
-                                                        NULL,
-                                                        &instance_any_id));
-    ESP_ERROR_CHECK(esp_event_handler_instance_register(IP_EVENT,
-                                                        IP_EVENT_STA_GOT_IP,
-                                                        &wifi_event_handler,
-                                                        NULL,
-                                                        &instance_got_ip));
+    esp_event_handler_register(WIFI_EVENT, ESP_EVENT_ANY_ID, &wifi_event_handler, NULL);
+    esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, &wifi_event_handler, NULL);
 
-    wifi_config_t wifi_cfg = { 0 };
-    strncpy((char*)wifi_cfg.sta.ssid, wifi_config->ssid, sizeof(wifi_cfg.sta.ssid));
-    strncpy((char*)wifi_cfg.sta.password, wifi_config->password, sizeof(wifi_cfg.sta.password));
+    wifi_config_t wifi_sta_config = {0};
+    strncpy((char*)wifi_sta_config.sta.ssid, wifi_config->ssid, sizeof(wifi_sta_config.sta.ssid));
+    strncpy((char*)wifi_sta_config.sta.password, wifi_config->password, sizeof(wifi_sta_config.sta.password));
 
-    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
-    ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifi_cfg));
-    ESP_ERROR_CHECK(esp_wifi_start());
+    esp_wifi_set_mode(WIFI_MODE_STA);
+    esp_wifi_set_config(WIFI_IF_STA, &wifi_sta_config);
+    esp_wifi_start();
 
-    ESP_LOGI(TAG, "Conectando a Wi-Fi...");
-    xEventGroupWaitBits(wifi_event_group, WIFI_CONNECTED_BIT, pdFALSE, pdTRUE, portMAX_DELAY);
-    ESP_LOGI(TAG, "Conectado a Wi-Fi.");
+    ESP_LOGI(TAG_WIFI, "Esperando conexión Wi-Fi...");
+
+    EventBits_t bits = xEventGroupWaitBits(wifi_event_group,
+                                           WIFI_CONNECTED_BIT,
+                                           pdFALSE,
+                                           pdFALSE,
+                                           pdMS_TO_TICKS(5000));
+
+    if (!(bits & WIFI_CONNECTED_BIT)) {
+        ESP_LOGE(TAG_WIFI, "No se pudo conectar a Wi-Fi");
+        return WiFiError;
+    }
+
+    ESP_LOGI(TAG_WIFI, "Conectado a Wi-Fi");
     return NoError;
 }
 
@@ -63,9 +76,8 @@ void Disable_wifi(void)
 {
     esp_wifi_stop();
     esp_wifi_deinit();
-    ESP_LOGI(TAG, "Wi-Fi deshabilitado.");
+    ESP_LOGI(TAG_WIFI, "Wi-Fi deshabilitado");
 }
-
 // MQTT
 static void mqtt_event_handler(void *handler_args, esp_event_base_t base,
                                int32_t event_id, void *event_data)

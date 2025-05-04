@@ -13,8 +13,8 @@ void app_main(void)
 
     // Configuración de Wi-Fi
     Wifi_config_t wifi_config = {
-        .ssid = "SSID",
-        .password = "PASSWORD"
+        .ssid = nombrewifi,
+        .password = contrasena
     };
     // Configuración de MQTT
     mqtt_config_t mqtt_config = {
@@ -32,6 +32,8 @@ void app_main(void)
     char *json_string = NULL;
 
     if(!status){status = Init_pin_funcion();}
+    Show_status_led(NoError);
+    Show_status_led(3);
     if(!status){status = Enable_wifi(&wifi_config);}
     if(!status){status = mqtt_connect(&mqtt_config);}
     if(!status){status = get_data(&temperatura, &humedad, &bateria);}
@@ -42,4 +44,8 @@ void app_main(void)
         mqtt_disconnect();}
     status = Show_status_led(status);
     if(!status){status = Deep_sleep(5000);}
+    gpio_set_level(Pin_Led_blanco, 1); // Desactivar divisor de tensión
+    Show_status_led(1);
+    
+    Deep_sleep(1000);
 }

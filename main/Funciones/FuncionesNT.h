@@ -9,6 +9,7 @@
 #include "esp_adc/adc_cali_scheme.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "esp_wifi.h"
 //#include "C:\Users\Vicente\esp\v5.4.1\esp-idf\components\esp_driver_gpio\include\driver\gpio.h"
 #include "dht11.h"
 #include "esp_sleep.h"

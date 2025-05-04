@@ -1,9 +1,15 @@
 #include "FuncionesNT.h"
-#include <esp_mac.h>
 
+#include <esp_mac.h>
+#include "esp_adc/adc_oneshot.h"
+#include "esp_adc/adc_cali.h"
+#include "esp_adc/adc_cali_scheme.h"
+#include "driver/dac.h"
 
 error_code_t Init_pin_funcion(){//Revisar 
 
+
+    dac_output_disable(DAC_CHANNEL_2); // Deshabilitar DAC para evitar interferencias
     gpio_config_t io_conf = {
         .mode = GPIO_MODE_OUTPUT,
         .pin_bit_mask = (1ULL << Pin_Led_rojo) | (1ULL << Pin_Led_blanco) | (1ULL << Pin_enable_divisorR),
@@ -119,20 +125,24 @@ error_code_t Show_status_led(error_code_t status){
     //enciende el led blanco si el estado es 0
     if(status == NoError){
         for(int i = 0; i < 3; i++){
-            gpio_set_level(Pin_Led_blanco, 1); // Encender led blanco
-            vTaskDelay(pdMS_TO_TICKS(500)); // Esperar 0.5 segundos
-            gpio_set_level(Pin_Led_blanco, 0); // Apagar led blanco
-            vTaskDelay(pdMS_TO_TICKS(500)); // Esperar 0.5 segundos
+            gpio_set_level(Pin_Led_blanco, 1);
+            vTaskDelay(1000 / portTICK_PERIOD_MS);
+            gpio_set_level(Pin_Led_blanco, 0);
+            vTaskDelay(1000 / portTICK_PERIOD_MS);
         }
-    }else if(status == SensorError){
+    }else{
         //enciende el led rojo si el estado es 1
         for(int i = 0; i < 3; i++){
-            gpio_set_level(Pin_Led_rojo, 1); // Encender led rojo
-            vTaskDelay(pdMS_TO_TICKS(500)); // Esperar 0.5 segundos
-            gpio_set_level(Pin_Led_rojo, 0); // Apagar led rojo
-            vTaskDelay(pdMS_TO_TICKS(500)); // Esperar 0.5 segundos
+            gpio_set_level(Pin_Led_rojo, 1);
+            vTaskDelay(1000 / portTICK_PERIOD_MS);
+            gpio_set_level(Pin_Led_rojo, 0);
+            vTaskDelay(1000 / portTICK_PERIOD_MS);
         }
     }
+    
+    //lo saca por terminal
+    
+
     return NoError; // Return a default value
 }
 

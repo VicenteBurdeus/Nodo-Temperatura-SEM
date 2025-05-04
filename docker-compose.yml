@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  esp-idf:
+    image: espressif/idf:latest
+    container_name: esp-idf
+    
+    working_dir: /project
+    volumes:
+      - ./:/project
+    tty: true
+    stdin_open: true
+    environment:
+      - IDF_PATH=/opt/esp/idf
+    command: bash
